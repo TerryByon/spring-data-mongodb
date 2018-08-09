@@ -30,6 +30,7 @@ import org.springframework.data.mapping.model.FieldNamingStrategy;
 import org.springframework.data.mapping.model.Property;
 import org.springframework.data.mapping.model.PropertyNameFieldNamingStrategy;
 import org.springframework.data.mapping.model.SimpleTypeHolder;
+import org.springframework.data.util.Lazy;
 import org.springframework.lang.Nullable;
 import org.springframework.util.StringUtils;
 
@@ -63,6 +64,7 @@ public class BasicMongoPersistentProperty extends AnnotationBasedPersistentPrope
 	}
 
 	private final FieldNamingStrategy fieldNamingStrategy;
+	private final Lazy<String> fieldName = Lazy.of(this::doGetFieldName);
 
 	/**
 	 * Creates a new {@link BasicMongoPersistentProperty}.
@@ -118,6 +120,10 @@ public class BasicMongoPersistentProperty extends AnnotationBasedPersistentPrope
 	 * @return
 	 */
 	public String getFieldName() {
+		return fieldName.get();
+	}
+
+	protected String doGetFieldName() {
 
 		if (isIdProperty()) {
 
