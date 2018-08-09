@@ -1317,6 +1317,16 @@ public class ProjectionOperationUnitTests {
 				Document.parse("{ $project: { time: { $dateToString: { format: \"%H:%M:%S:%L\", date: \"$date\" } } } }"));
 	}
 
+	@Test // DATAMONGO-2047
+	public void shouldRenderDateToStringWithoutFormatOption() {
+
+		Document agg = project().and("date").dateAsFormattedString().as("time")
+				.toDocument(Aggregation.DEFAULT_CONTEXT);
+
+		assertThat(agg).isEqualTo(
+				Document.parse("{ $project: { time: { $dateToString: { date: \"$date\" } } } }"));
+	}
+
 	@Test // DATAMONGO-1536
 	public void shouldRenderDateToStringAggregationExpression() {
 
@@ -2036,6 +2046,18 @@ public class ProjectionOperationUnitTests {
 		assertThat(agg).isEqualTo(Document.parse(
 				"{ $project : { newDate: { $dateFromString: { dateString : \"2017-02-08T12:10:40.787\", timezone : \"America/Chicago\" } } } }"));
 	}
+
+	@Test // DATAMONGO-2047
+	public void shouldRenderDateFromStringWithFormat() {
+
+		Document agg = project()
+				.and(DateOperators.dateFromString("2017-02-08T12:10:40.787").withFormat("dd/mm/yyyy"))
+				.as("newDate").toDocument(Aggregation.DEFAULT_CONTEXT);
+
+		assertThat(agg).isEqualTo(Document.parse(
+				"{ $project : { newDate: { $dateFromString: { dateString : \"2017-02-08T12:10:40.787\", format : \"dd/mm/yyyy\" } } } }"));
+	}
+
 
 	private static Document exctractOperation(String field, Document fromProjectClause) {
 		return (Document) fromProjectClause.get(field);
